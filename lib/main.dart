@@ -125,6 +125,7 @@ class _HomepageState extends State<Homepage> {
                   Text('W: $windSpeed')
                 ],
               )
+              //
             ],
           ),
         ): Center(child: CupertinoActivityIndicator(),) ));
