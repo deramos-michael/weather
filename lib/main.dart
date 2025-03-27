@@ -134,7 +134,7 @@ class _HomepageState extends State<Homepage> {
 class SettingsPage extends StatefulWidget {
   final String location;
 
-  SettingsPage({required this.location});
+  const SettingsPage({required this.location, Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -154,105 +154,164 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text("Settings"),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Text("Save"),
-          onPressed: () {
-            Navigator.pop(context, selectedLocation);
-          },
-        ),
+      navigationBar: const CupertinoNavigationBar(
+        middle: Text('Settings'),
       ),
       child: SafeArea(
-        child: ListView(
+        child: Column(
           children: [
-            // Location Setting
-            CupertinoListSection(
-              children: [
-                CupertinoListTile(
-                  title: Text("Location"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(selectedLocation),
-                      SizedBox(width: 8),
-                      Icon(CupertinoIcons.chevron_right, size: 18),
-                    ],
+            // Location Row
+            _buildListRow(
+              CupertinoIcons.location,
+              'Location',
+              iconColor: CupertinoColors.white,
+              iconBgColor: CupertinoColors.systemBlue,
+              trailing: Row(
+                children: [
+                  Text(
+                    selectedLocation,
+                    style: const TextStyle(color: CupertinoColors.systemGrey),
                   ),
-                  onTap: () async {
-                    final newLocation = await showCupertinoModalPopup<String>(
-                      context: context,
-                      builder: (context) => LocationPicker(
-                        currentLocation: selectedLocation,
-                      ),
-                    );
-                    if (newLocation != null) {
-                      setState(() {
-                        selectedLocation = newLocation;
-                      });
-                    }
+                  const SizedBox(width: 4),
+                  const Icon(CupertinoIcons.chevron_right, size: 18),
+                ],
+              ),
+              onTap: () async {
+                final newLocation = await showCupertinoModalPopup<String>(
+                  context: context,
+                  builder: (context) => LocationPicker(
+                    currentLocation: selectedLocation,
+                  ),
+                );
+                if (newLocation != null) {
+                  setState(() {
+                    selectedLocation = newLocation;
+                  });
+                }
+              },
+            ),
+            const _SettingsDivider(),
+
+            // Icon Row
+            _buildListRow(
+              CupertinoIcons.square_grid_2x2,
+              'Icon',
+              iconColor: CupertinoColors.white,
+              iconBgColor: CupertinoColors.systemPurple,
+              trailing: const Icon(CupertinoIcons.chevron_right, size: 18),
+              onTap: () {
+                // Handle icon setting
+              },
+            ),
+            const _SettingsDivider(),
+
+            // Metric System Row
+            _buildListRow(
+              CupertinoIcons.textformat_123,
+              'Metric System',
+              iconColor: CupertinoColors.white,
+              iconBgColor: CupertinoColors.systemGreen,
+              trailing: CupertinoSwitch(
+                value: metricSystem,
+                onChanged: (value) {
+                  setState(() {
+                    metricSystem = value;
+                  });
+                },
+              ),
+            ),
+            const _SettingsDivider(),
+
+            // Light Mode Row
+            _buildListRow(
+              CupertinoIcons.sun_max,
+              'Light Mode',
+              iconColor: CupertinoColors.white,
+              iconBgColor: CupertinoColors.systemYellow,
+              trailing: CupertinoSwitch(
+                value: lightMode,
+                onChanged: (value) {
+                  setState(() {
+                    lightMode = value;
+                  });
+                },
+              ),
+            ),
+            const _SettingsDivider(),
+
+            // About Row
+            _buildListRow(
+              CupertinoIcons.info,
+              'About',
+              iconColor: CupertinoColors.white,
+              iconBgColor: CupertinoColors.systemGrey,
+              trailing: const Text(
+                'Version: 1.0',
+                style: TextStyle(color: CupertinoColors.systemGrey),
+              ),
+            ),
+            const _SettingsDivider(),
+
+            // Save Button
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: CupertinoButton.filled(
+                  child: const Text('Save'),
+                  onPressed: () {
+                    Navigator.pop(context, selectedLocation);
                   },
                 ),
-              ],
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Icon Setting
-            CupertinoListSection(
-              children: [
-                CupertinoListTile(
-                  title: Text("Icon"),
-                  trailing: Icon(CupertinoIcons.chevron_right, size: 18),
-                  onTap: () {
-                    // Handle icon setting
-                  },
+  Widget _buildListRow(
+      IconData icon,
+      String title, {
+        Color? iconColor,
+        Color? iconBgColor,
+        Widget? trailing,
+        VoidCallback? onTap,
+      }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: iconBgColor ?? CupertinoColors.systemGrey,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: iconColor ?? CupertinoColors.white,
                 ),
-              ],
+              ),
             ),
-
-            // Metric System Setting
-            CupertinoListSection(
-              children: [
-                CupertinoListTile(
-                  title: Text("Metric System"),
-                  trailing: CupertinoSwitch(
-                    value: metricSystem,
-                    onChanged: (value) {
-                      setState(() {
-                        metricSystem = value;
-                      });
-                    },
-                  ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
-              ],
+              ),
             ),
-
-            // Light Mode Setting
-            CupertinoListSection(
-              children: [
-                CupertinoListTile(
-                  title: Text("Light Mode"),
-                  trailing: CupertinoSwitch(
-                    value: lightMode,
-                    onChanged: (value) {
-                      setState(() {
-                        lightMode = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            // About Setting
-            CupertinoListSection(
-              children: [
-                CupertinoListTile(
-                  title: Text("About"),
-                  trailing: Text("Version: 1.0"),
-                ),
-              ],
-            ),
+            trailing ?? const SizedBox(),
           ],
         ),
       ),
@@ -260,30 +319,58 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-class LocationPicker extends StatelessWidget {
-  final String currentLocation;
-
-  LocationPicker({required this.currentLocation});
-
-  final TextEditingController _controller = TextEditingController();
+class _SettingsDivider extends StatelessWidget {
+  const _SettingsDivider({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _controller.text = currentLocation;
+    return Container(
+      height: 0.5,
+      margin: const EdgeInsets.only(left: 60.0),
+      color: CupertinoColors.separator,
+    );
+  }
+}
 
+class LocationPicker extends StatefulWidget {
+  final String currentLocation;
+
+  const LocationPicker({required this.currentLocation, Key? key}) : super(key: key);
+
+  @override
+  _LocationPickerState createState() => _LocationPickerState();
+}
+
+class _LocationPickerState extends State<LocationPicker> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.currentLocation);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: Icon(CupertinoIcons.chevron_left),
+          child: const Icon(CupertinoIcons.chevron_left),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        middle: Text("Change Location"),
+        middle: const Text('Change Location'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: Text("Save"),
+          child: const Text('Save'),
           onPressed: () {
             if (_controller.text.trim().isNotEmpty) {
               Navigator.pop(context, _controller.text.trim());
@@ -293,14 +380,14 @@ class LocationPicker extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16.0),
           child: CupertinoTextField(
             controller: _controller,
-            placeholder: "Enter city name",
-            padding: EdgeInsets.all(12),
+            placeholder: 'Enter city name',
+            padding: const EdgeInsets.all(12.0),
             decoration: BoxDecoration(
               border: Border.all(color: CupertinoColors.systemGrey),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8.0),
             ),
             autofocus: true,
           ),
