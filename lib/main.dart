@@ -375,6 +375,7 @@ class _LocationPickerState extends State<LocationPicker> {
             if (_controller.text.trim().isNotEmpty) {
               Navigator.pop(context, _controller.text.trim());
             }
+            //
           },
         ),
       ),
